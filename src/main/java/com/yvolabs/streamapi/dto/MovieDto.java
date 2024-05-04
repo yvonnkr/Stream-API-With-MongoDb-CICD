@@ -47,7 +47,7 @@ public class MovieDto {
 
     private List<String> genres;
 
-    private List<Review> reviewIds;
+    private List<Review> reviewsIds;
 
 
 }

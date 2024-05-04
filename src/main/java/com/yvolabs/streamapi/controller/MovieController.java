@@ -8,7 +8,6 @@ import com.yvolabs.streamapi.response.Result;
 import com.yvolabs.streamapi.response.StatusCode;
 import com.yvolabs.streamapi.service.MovieService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +20,8 @@ import static com.yvolabs.streamapi.mapper.MovieMapper.INSTANCE;
  * @author Yvonne N
  */
 @RestController
-@RequestMapping("/api/v1/movies")
+@RequestMapping("${api.endpoint.base-url}/movies")
 @RequiredArgsConstructor
-@Slf4j
 public class MovieController {
     private final MovieService movieService;
 

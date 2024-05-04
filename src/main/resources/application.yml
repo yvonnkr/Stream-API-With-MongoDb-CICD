@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: stream-api
+  data:
+    mongodb:
+      database: ${MONGO_DATABASE}
+      uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_CLUSTER}/?retryWrites=true&w=majority
+
+api:
+  endpoint:
+    base-url: /api/v1
