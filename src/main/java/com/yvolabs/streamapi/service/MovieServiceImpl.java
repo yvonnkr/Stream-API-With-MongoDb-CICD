@@ -1,7 +1,7 @@
 package com.yvolabs.streamapi.service;
 
 import com.yvolabs.streamapi.dto.MovieDto;
-import com.yvolabs.streamapi.exception.MovieNotFoundException;
+import com.yvolabs.streamapi.exception.ObjectNotFoundException;
 import com.yvolabs.streamapi.mapper.MovieMapper;
 import com.yvolabs.streamapi.model.Movie;
 import com.yvolabs.streamapi.repository.MovieRepository;
@@ -32,7 +32,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public Movie findById(String movieId) {
         return movieRepository.findById(new ObjectId(movieId))
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+                .orElseThrow(() -> new ObjectNotFoundException("movie", movieId));
 
     }
 
@@ -43,13 +43,13 @@ public class MovieServiceImpl implements MovieService {
                     Movie movieUpdate = MovieMapper.INSTANCE.updateMovieDto(movieDto, movie);
                     return movieRepository.save(movieUpdate);
                 })
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+                .orElseThrow(() -> new ObjectNotFoundException("movie", movieId));
     }
 
     @Override
     public void delete(String movieId) {
         Movie movie = movieRepository.findById(new ObjectId(movieId))
-                .orElseThrow(() -> new MovieNotFoundException(movieId));
+                .orElseThrow(() -> new ObjectNotFoundException("movie", movieId));
         movieRepository.delete(movie);
     }
 }
