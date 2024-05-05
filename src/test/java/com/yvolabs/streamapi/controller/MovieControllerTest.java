@@ -2,7 +2,7 @@ package com.yvolabs.streamapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yvolabs.streamapi.dto.MovieDto;
-import com.yvolabs.streamapi.exception.MovieNotFoundException;
+import com.yvolabs.streamapi.exception.ObjectNotFoundException;
 import com.yvolabs.streamapi.model.Movie;
 import com.yvolabs.streamapi.response.StatusCode;
 import com.yvolabs.streamapi.service.MovieService;
@@ -64,7 +64,6 @@ class MovieControllerTest {
                 .andExpect(jsonPath("$.message").value("Find All Success"))
                 .andExpect(jsonPath("$.data", Matchers.hasSize(movies.size())));
         verify(movieService).findAll();
-
     }
 
     @Test
@@ -85,7 +84,6 @@ class MovieControllerTest {
                 .releaseDate("01-01-2020")
                 .genres(List.of("Genre 1", "Genre 2"))
                 .build();
-
 
         given(movieService.add(Mockito.any(Movie.class))).willReturn(savedMovie);
 
@@ -170,13 +168,13 @@ class MovieControllerTest {
     @Test
     void testGetMovieByIdNotfound() throws Exception {
         String movieId = "662329256487b26751b3d406";
-        given(movieService.findById(movieId)).willThrow(new MovieNotFoundException(movieId));
+        given(movieService.findById(movieId)).willThrow(new ObjectNotFoundException("movie", movieId));
 
         mockMvc.perform(MockMvcRequestBuilders.get(PATH + "/" + movieId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(result -> assertInstanceOf(MovieNotFoundException.class, result.getResolvedException()))
+                .andExpect(result -> assertInstanceOf(ObjectNotFoundException.class, result.getResolvedException()))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find movie with Id " + movieId));
+                .andExpect(jsonPath("$.message").value("Could not find movie with id " + movieId));
 
         verify(movieService).findById(movieId);
     }
@@ -232,17 +230,17 @@ class MovieControllerTest {
         String movieUpdateDtoJson = objectMapper.writeValueAsString(movieUpdateDto);
 
         given(movieService.update(movieId, movieUpdateDto))
-                .willThrow(new MovieNotFoundException(movieId));
+                .willThrow(new ObjectNotFoundException("movie", movieId));
 
         mockMvc.perform(
                         patch(PATH + "/" + movieId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(movieUpdateDtoJson)
                                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(result -> assertInstanceOf(MovieNotFoundException.class, result.getResolvedException()))
+                .andExpect(result -> assertInstanceOf(ObjectNotFoundException.class, result.getResolvedException()))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find movie with Id " + movieId))
+                .andExpect(jsonPath("$.message").value("Could not find movie with id " + movieId))
                 .andExpect(jsonPath("$.data").isEmpty());
         verify(movieService).update(movieId, movieUpdateDto);
     }
@@ -325,12 +323,12 @@ class MovieControllerTest {
     @Test
     void testDeleteMovieNotFoundException() throws Exception {
         String movieId = "662329256487b26751b3d406";
-        doThrow(new MovieNotFoundException(movieId)).when(movieService).delete(movieId);
+        doThrow(new ObjectNotFoundException("movie", movieId)).when(movieService).delete(movieId);
         mockMvc.perform(delete(PATH + "/" + movieId).accept(MediaType.APPLICATION_JSON))
-                .andExpect(result -> assertInstanceOf(MovieNotFoundException.class, result.getResolvedException()))
+                .andExpect(result -> assertInstanceOf(ObjectNotFoundException.class, result.getResolvedException()))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find movie with Id " + movieId))
+                .andExpect(jsonPath("$.message").value("Could not find movie with id " + movieId))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 }

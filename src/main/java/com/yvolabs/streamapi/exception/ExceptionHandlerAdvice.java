@@ -19,15 +19,24 @@ import java.util.List;
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
-    @ExceptionHandler(MovieNotFoundException.class)
+    @ExceptionHandler(ObjectNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    Result<Object> handleMovieNotFoundException(MovieNotFoundException e) {
+    Result<Object> handleObjectNotFoundException(ObjectNotFoundException e) {
         return Result.builder()
                 .flag(false)
                 .code(StatusCode.NOT_FOUND)
                 .message(e.getMessage())
                 .build();
+    }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    Result<Object> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.INVALID_ARGUMENT)
+                .message(e.getMessage())
+                .build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -42,9 +51,30 @@ public class ExceptionHandlerAdvice {
         });
         return Result.builder()
                 .flag(false)
-                .code(HttpStatus.BAD_REQUEST.value())
+                .code(StatusCode.INVALID_ARGUMENT)
                 .message("Provided arguments are not valid, see data for details")
                 .data(map)
+                .build();
+    }
+
+    @ExceptionHandler(InvalidObjectIdException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    Result<Object> handleInvalidObjectIdException(InvalidObjectIdException e) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.INVALID_ARGUMENT)
+                .message(e.getMessage())
+                .build();
+    }
+
+    // Fallback Handler
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    Result<Object> handleAllOtherUnhandledException(Exception e) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.INTERNAL_SERVER_ERROR)
+                .message(e.getMessage())
                 .build();
     }
 

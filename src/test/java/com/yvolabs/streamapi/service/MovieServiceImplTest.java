@@ -1,7 +1,7 @@
 package com.yvolabs.streamapi.service;
 
 import com.yvolabs.streamapi.dto.MovieDto;
-import com.yvolabs.streamapi.exception.MovieNotFoundException;
+import com.yvolabs.streamapi.exception.ObjectNotFoundException;
 import com.yvolabs.streamapi.mapper.MovieMapper;
 import com.yvolabs.streamapi.model.Movie;
 import com.yvolabs.streamapi.repository.MovieRepository;
@@ -109,8 +109,8 @@ class MovieServiceImplTest {
         );
 
         assertThat(throwable)
-                .isInstanceOf(MovieNotFoundException.class)
-                .hasMessageContaining("Could not find movie with Id " + movieId);
+                .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessageContaining("Could not find movie with id " + movieId);
         verify(movieRepository).findById(Mockito.any(ObjectId.class));
     }
 
@@ -163,7 +163,7 @@ class MovieServiceImplTest {
                 movieService.update(movieId, MovieDto.builder().build())
         );
 
-        assertThat(throwable).isInstanceOf(MovieNotFoundException.class);
+        assertThat(throwable).isInstanceOf(ObjectNotFoundException.class);
         verify(movieRepository).findById(Mockito.any(ObjectId.class));
     }
 
@@ -184,7 +184,7 @@ class MovieServiceImplTest {
         given(movieRepository.findById(movie.getId())).willReturn(Optional.empty());
 
         Throwable throwable = catchThrowable(() -> movieService.delete(movie.getId().toString()));
-        assertThat(throwable).isInstanceOf(MovieNotFoundException.class);
+        assertThat(throwable).isInstanceOf(ObjectNotFoundException.class);
         verify(movieRepository).findById(movie.getId());
 
     }
