@@ -1,6 +1,7 @@
 package com.yvolabs.streamapi.service;
 
 import com.yvolabs.streamapi.dto.MovieDto;
+import com.yvolabs.streamapi.exception.InvalidObjectIdException;
 import com.yvolabs.streamapi.exception.ObjectNotFoundException;
 import com.yvolabs.streamapi.mapper.MovieMapper;
 import com.yvolabs.streamapi.model.Movie;
@@ -31,14 +32,14 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Movie findById(String movieId) {
-        return movieRepository.findById(new ObjectId(movieId))
+        return movieRepository.findById(convertStringToObjectId(movieId))
                 .orElseThrow(() -> new ObjectNotFoundException("movie", movieId));
 
     }
 
     @Override
     public Movie update(String movieId, MovieDto movieDto) {
-        return movieRepository.findById(new ObjectId(movieId))
+        return movieRepository.findById(convertStringToObjectId(movieId))
                 .map((movie) -> {
                     Movie movieUpdate = MovieMapper.INSTANCE.updateMovieDto(movieDto, movie);
                     return movieRepository.save(movieUpdate);
@@ -48,8 +49,21 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public void delete(String movieId) {
-        Movie movie = movieRepository.findById(new ObjectId(movieId))
+        Movie movie = movieRepository.findById(convertStringToObjectId(movieId))
                 .orElseThrow(() -> new ObjectNotFoundException("movie", movieId));
         movieRepository.delete(movie);
     }
+
+    private static ObjectId convertStringToObjectId(String userId) {
+        ObjectId userIdToObjectId;
+
+        try {
+            userIdToObjectId = new ObjectId(userId);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidObjectIdException("movie", userId);
+        }
+
+        return userIdToObjectId;
+    }
+
 }

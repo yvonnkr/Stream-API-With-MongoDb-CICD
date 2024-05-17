@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,9 @@ import static org.mockito.Mockito.*;
 class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -61,10 +65,11 @@ class UserServiceImplTest {
                 .email("john@doe.com")
                 .password("123456")
                 .enabled(true)
-                .roles("admin,user")
+                .roles("admin user")
                 .build();
 
         given(userRepository.save(newUser)).willReturn(newUser);
+        given(passwordEncoder.encode(newUser.getPassword())).willReturn("encoded-password");
         StreamUser savedUser = userService.save(newUser);
 
         Assertions.assertThat(savedUser).isNotNull();
@@ -89,9 +94,10 @@ class UserServiceImplTest {
                 .email(email)
                 .password("123456")
                 .enabled(true)
-                .roles("admin,user")
+                .roles("admin user")
                 .build();
         given(userRepository.findByEmail(email)).willReturn(Optional.of(userList.get(0)));
+        given(passwordEncoder.encode(newUser.getPassword())).willReturn("encoded-password");
 
         Throwable throwable = catchThrowable(() -> userService.save(newUser));
 
