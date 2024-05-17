@@ -42,5 +42,5 @@ public class StreamUser {
     private boolean enabled;
 
     @NotEmpty(message = "roles are required")
-    private String roles; //comma separated string
+    private String roles; //space separated string
 }

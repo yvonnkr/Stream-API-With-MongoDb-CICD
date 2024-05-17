@@ -20,7 +20,7 @@ public class UserTestData {
                 .email("john@doe.com")
                 .password("123456")
                 .enabled(true)
-                .roles("admin,user")
+                .roles("admin user")
                 .build();
 
         StreamUser user2 = StreamUser.builder()

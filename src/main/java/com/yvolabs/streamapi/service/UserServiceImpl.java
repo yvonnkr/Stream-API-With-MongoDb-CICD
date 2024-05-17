@@ -6,8 +6,13 @@ import com.yvolabs.streamapi.exception.ObjectNotFoundException;
 import com.yvolabs.streamapi.exception.UserAlreadyExistsException;
 import com.yvolabs.streamapi.model.StreamUser;
 import com.yvolabs.streamapi.repository.UserRepository;
+import com.yvolabs.streamapi.security.MyUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +24,9 @@ import static com.yvolabs.streamapi.mapper.UserMapper.INSTANCE;
  */
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<StreamUser> findAll() {
@@ -29,7 +35,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public StreamUser save(StreamUser user) {
-        //todo save/persist encrypted user password when security is implemented
+        String encoded = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encoded);
         userRepository.findByEmail(user.getEmail())
                 .ifPresent((foundUser) -> {
                     throw new UserAlreadyExistsException(foundUser.getEmail());
@@ -67,6 +74,14 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    //security
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+                .map(MyUserPrincipal::new)
+                .orElseThrow(() -> new UsernameNotFoundException("user with email " + username + " was not found"));
+    }
+
 
     private static ObjectId convertStringToObjectId(String userId) {
         ObjectId userIdToObjectId;
@@ -79,5 +94,6 @@ public class UserServiceImpl implements UserService {
 
         return userIdToObjectId;
     }
+
 
 }

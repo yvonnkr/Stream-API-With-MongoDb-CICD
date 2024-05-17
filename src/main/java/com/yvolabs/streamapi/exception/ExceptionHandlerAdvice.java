@@ -3,6 +3,12 @@ package com.yvolabs.streamapi.exception;
 import com.yvolabs.streamapi.response.Result;
 import com.yvolabs.streamapi.response.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -64,6 +70,69 @@ public class ExceptionHandlerAdvice {
                 .flag(false)
                 .code(StatusCode.INVALID_ARGUMENT)
                 .message(e.getMessage())
+                .build();
+    }
+
+    // Security Errors
+
+    // AuthenticationEntryPoint: custom-basic-auth
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    Result<?> handleAuthenticationException(Exception ex) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.UNAUTHORIZED)
+                .message("username or password is incorrect")
+                .data(ex.getMessage())
+                .build();
+    }
+
+    // AuthenticationEntryPoint: custom-basic-auth
+    @ExceptionHandler(AccountStatusException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    Result<?> handleAccountStatusException(AccountStatusException ex) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.UNAUTHORIZED)
+                .message("User account is abnormal")
+                .data(ex.getMessage())
+                .build();
+    }
+
+    // AuthenticationEntryPoint: custom-bearer-token-auth
+    @ExceptionHandler(InvalidBearerTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    Result<?> handleInvalidBearerTokenException(InvalidBearerTokenException ex) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.UNAUTHORIZED)
+                .message("The access token provided is expired, revoked, malformed or invalid for other reasons.")
+                .data(ex.getMessage())
+                .build();
+    }
+
+
+    // AccessDeniedHandler: custom-bearer-token
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    Result<?> handleAccessDeniedException(AccessDeniedException ex) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.FORBIDDEN)
+                .message("No permission to access this resource")
+                .data(ex.getMessage())
+                .build();
+
+    }
+
+    @ExceptionHandler({InsufficientAuthenticationException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    Result<?> handleInsufficientAuthenticationException(InsufficientAuthenticationException ex) {
+        return Result.builder()
+                .flag(false)
+                .code(StatusCode.UNAUTHORIZED)
+                .message("Login credentials are missing.")
+                .data(ex.getMessage())
                 .build();
     }
 
