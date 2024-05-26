@@ -73,6 +73,8 @@ public class SecurityConfiguration {
         return http
                 .authorizeHttpRequests((authorizeRequests) -> {
                     authorizeRequests
+                            .requestMatchers(GET, baseUrl + "/todos/**").permitAll()
+
                             .requestMatchers(GET, baseUrl + "/movies/**").permitAll()
                             .requestMatchers(POST, baseUrl + "/movies/**").hasAuthority("ROLE_user")
                             .requestMatchers(PATCH, baseUrl + "/movies/**").hasAuthority("ROLE_user")
